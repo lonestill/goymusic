@@ -1,0 +1,65 @@
+.titlebar {
+    grid-area: title;
+    height: 32px;
+    background: var(--bg-crust);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.dragRegion {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: default;
+}
+
+.title {
+    font-size: 12px;
+    font-weight: 600;
+    padding-left: 16px;
+    opacity: 0.5;
+    color: var(--text-main);
+    pointer-events: none;
+}
+
+.controls {
+    display: flex;
+    height: 100%;
+}
+
+.button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 46px;
+    height: 100%;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-main);
+}
+
+.button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.close:hover {
+    background: #e81123 !important;
+    color: #fff;
+}
+
+.divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border-subtle);
+    align-self: center;
+    margin: 0 4px;
+}
+
+:global([data-theme="light"]) .button:hover {
+    background: rgba(0, 0, 0, 0.05);
+}

@@ -1,0 +1,66 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-main);
+    background: transparent;
+}
+
+.header {
+    display: flex;
+    gap: 32px;
+    align-items: flex-end;
+    margin-bottom: 32px;
+}
+
+.cover {
+    width: 192px;
+    height: 192px;
+    background: linear-gradient(135deg, #89b4fa, #cba6f7);
+    border-radius: 12px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.5;
+    margin-bottom: 8px;
+}
+
+.title {
+    font-size: 72px;
+    margin: 0;
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+.meta {
+    margin-top: 16px;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.white {
+    color: var(--text-main);
+}
+
+.trackList {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tableHeader {
+    opacity: 0.3;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tableHeader th {
+    padding: 12px;
+}

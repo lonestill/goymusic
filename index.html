@@ -4,40 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GoyMusic Client</title>
-    <link rel="stylesheet" href="/src/styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div id="app">
-      <header>
-        <h1>GoyMusic</h1>
-        <div id="auth-status"></div>
-      </header>
-
-      <main id="main-content">
-        <div id="auth-container" class="glass-panel hidden">
-          <h2>Sign in with YouTube</h2>
-          <p>Please click the button below to authorize the application via TV Device Flow.</p>
-          <button id="login-btn" class="primary-btn">Start Login Flow</button>
-          
-          <div id="auth-step-2" class="hidden" style="margin-top: 2rem;">
-            <p>Verification Link:</p>
-            <a id="verification-url" href="#" target="_blank" style="color: var(--primary); word-break: break-all;"></a>
-            <p>Enter the code below:</p>
-            <h3 id="user-code" style="font-size: 2rem; letter-spacing: 5px; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; text-align: center;"></h3>
-            <div class="loader">Waiting for you to complete authorization...</div>
-          </div>
-        </div>
-
-        <div id="music-container" class="glass-panel hidden">
-          <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Search for songs, artists, albums..." />
-            <button id="search-btn" class="primary-btn">Search</button>
-          </div>
-          <div id="results" class="results-grid"></div>
-        </div>
-      </main>
-    </div>
-    <script type="module" src="/src/main.ts" defer></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

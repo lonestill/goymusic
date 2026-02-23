@@ -1,0 +1,53 @@
+.row {
+    transition: background 0.15s ease;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.row.active {
+    color: var(--accent);
+}
+
+:global([data-theme="light"]) .row:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.row td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.index {
+    width: 40px;
+    opacity: 0.5;
+}
+
+.titleCell {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-weight: 600;
+}
+
+.artist {
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.album {
+    opacity: 0.6;
+}
+
+.duration {
+    text-align: right;
+    opacity: 0.5;
+    font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoyMusic Mockups</title>
+    <link rel="stylesheet" href="./base.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e1e2e, #11111b);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        .mockup-header {
+            text-align: center;
+        }
+        .mockup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .mockup-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .mockup-card:hover {
+            transform: translateY(-5px);
+        }
+        .mockup-link {
+            color: #89b4fa;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-header">
+        <h1>GoyMusic Design Mockups</h1>
+        <p>Explore different glassmorphic directions for the Home and Player screens.</p>
+    </div>
+    <div class="mockup-grid">
+        <div class="mockup-card">
+            <h2>#1 Crystal Clear</h2>
+            <p>High transparency, sharp blur, minimal borders.</p>
+            <a href="./mockup1.html" class="mockup-link">View Mockup</a>
+        </div>
+        <div class="mockup-card">
+            <h2>#2 Frosted Soft</h2>
+            <p>Deep blur, soft shadows, higher opacity.</p>
+            <a href="./mockup2.html" class="mockup-link">View Mockup</a>
+        </div>
+        <div class="mockup-card">
+            <h2>#3 Neon Glass</h2>
+            <p>Subtle color glows, dynamic gradients, bold contrast.</p>
+            <a href="./mockup3.html" class="mockup-link">View Mockup</a>
+        </div>
+        <div class="mockup-card">
+            <h2>#4 Minimalist Slate</h2>
+            <p>Extremely reduced elements, focus on typography.</p>
+            <a href="./mockup4.html" class="mockup-link">View Mockup</a>
+        </div>
+        <div class="mockup-card" style="border-color: #89b4fa;">
+            <h2>🚀 Desktop: Sidebar + Home</h2>
+            <p>Spotify-inspired desktop layout with Sidebar and Content Grid.</p>
+            <a href="./mockup_desktop.html" class="mockup-link">View Mockup</a>
+        </div>
+        <div class="mockup-card" style="border-color: #cba6f7;">
+            <h2>📊 Desktop: Library Detail</h2>
+            <p>Track-list focused layout with a "Next Up" queue and Lucide icons.</p>
+            <a href="./mockup6.html" class="mockup-link">View Mockup</a>
+        </div>
+        <div class="mockup-card" style="border-color: #f5c2e7;">
+            <h2>✨ Desktop: Immersive Player</h2>
+            <p>Focused playback experience with large art and dynamic background.</p>
+            <a href="./mockup7.html" class="mockup-link">View Mockup</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoyMusic - Functional Desktop Mockup</title>
+    <link rel="stylesheet" href="./base.css">
+    <style>
+        :root {
+            --sidebar-width: 240px;
+            --player-height: 90px;
+            --glass-blur: 30px;
+            --glass-opacity: 0.08;
+            --accent: #89b4fa;
+        }
+
+        body {
+            background: #0b0b14;
+            color: #cdd6f4;
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            display: grid;
+            grid-template-areas: 
+                "sidebar main"
+                "player player";
+            grid-template-columns: var(--sidebar-width) 1fr;
+            grid-template-rows: 1fr var(--player-height);
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.7;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 1;
+        }
+
+        /* Main Content */
+        .main {
+            grid-area: main;
+            padding: 40px;
+            overflow-y: auto;
+            background: radial-gradient(circle at top left, rgba(137, 180, 250, 0.05), transparent);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+        }
+
+        .card-img {
+            aspect-ratio: 1;
+            background: #1e1e2e;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        /* Player Bar */
+        .player {
+            grid-area: player;
+            background: rgba(17, 17, 27, 0.8);
+            backdrop-filter: blur(var(--glass-blur));
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 10;
+        }
+
+        .now-playing {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .playback-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 20px;
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .bar-fill {
+            width: 35%;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .extra-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            opacity: 0.7;
+        }
+
+        /* Queue / Next Up */
+        .queue-toggle {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .queue-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2 style="margin-top: 0;">GoyMusic</h2>
+        <div class="nav-item active">🏠 Home</div>
+        <div class="nav-item">🔍 Search</div>
+        <div class="nav-item">📚 Library</div>
+        <hr style="width: 100%; border: 0; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="nav-item">➕ Create Playlist</div>
+        <div class="nav-item">❤️ Liked Songs</div>
+    </div>
+
+    <div class="main">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search artists, songs, or albums...">
+        </div>
+
+        <h3 class="section-title">Jump back in</h3>
+        <div class="grid">
+            <div class="card">
+                <div class="card-img"></div>
+                <strong>Daily Mix 1</strong>
+                <p style="font-size: 13px; opacity: 0.5;">Lofi, Chill, Study</p>
+            </div>
+            <div class="card">
+                <div class="card-img" style="background: #313244;"></div>
+                <strong>Techno Pulse</strong>
+                <p style="font-size: 13px; opacity: 0.5;">Dark, Industrial</p>
+            </div>
+            <div class="card">
+                <div class="card-img" style="background: #45475a;"></div>
+                <strong>Acoustic Focus</strong>
+                <p style="font-size: 13px; opacity: 0.5;">Guitar, Calm</p>
+            </div>
+        </div>
+
+        <h3 class="section-title" style="margin-top: 40px;">Recommended for you</h3>
+        <div class="grid">
+            <div class="card"><div class="card-img"></div><strong>Discover Weekly</strong></div>
+            <div class="card"><div class="card-img"></div><strong>New Release Radar</strong></div>
+        </div>
+    </div>
+
+    <div class="player">
+        <div class="now-playing">
+            <div style="width: 56px; height: 56px; background: #89b4fa; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);"></div>
+            <div>
+                <div style="font-weight: bold; font-size: 14px;">Midnight City</div>
+                <div style="font-size: 12px; opacity: 0.6;">M83</div>
+            </div>
+            <span style="margin-left: 8px; opacity: 0.5;">❤️</span>
+        </div>
+
+        <div class="playback-controls">
+            <div class="buttons">
+                <span style="font-size: 14px; opacity: 0.5;">🔀</span>
+                <span>⏮</span>
+                <span style="font-size: 32px;">⏸</span>
+                <span>⏭</span>
+                <span style="font-size: 14px; opacity: 0.5;">🔁</span>
+            </div>
+            <div class="progress-container">
+                <span>1:24</span>
+                <div class="bar">
+                    <div class="bar-fill"></div>
+                </div>
+                <span>4:03</span>
+            </div>
+        </div>
+
+        <div class="extra-controls">
+            <span class="queue-toggle">📜</span>
+            <span>🔊</span>
+            <div class="bar" style="max-width: 100px; height: 3px; margin: 0;"><div class="bar-fill" style="width: 70%;"></div></div>
+            <span>🖥️</span>
+        </div>
+    </div>
+</body>
+</html>

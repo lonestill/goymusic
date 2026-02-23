@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup #4 - Minimalist Slate</title>
+    <link rel="stylesheet" href="./base.css">
+    <style>
+        :root {
+            --glass-blur: 8px;
+            --glass-opacity: 0.02;
+            --glass-border: rgba(255, 255, 255, 0.03);
+            --slate-bg: #111111;
+        }
+
+        body {
+            background: var(--slate-bg);
+            color: #ffffff;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .minimal-player {
+            width: 100%;
+            max-width: 1000px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 40px;
+        }
+
+        .track-info {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 84px;
+            font-weight: 300;
+            margin: 0;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 300;
+            margin: 20px 0 0;
+            opacity: 0.4;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .actions {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            font-weight: 200;
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .play-pause {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .timeline {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .time {
+            font-size: 14px;
+            opacity: 0.3;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .bar {
+            flex-grow: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 30px 6px;
+            position: relative;
+        }
+
+        .bar-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 30%;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="minimal-player glass">
+        <div class="track-info">
+            <h2>Now Playing</h2>
+            <h1>Silent Forest</h1>
+            <h2>Ethereal Echo</h2>
+        </div>
+        
+        <div class="actions">
+            <span>Previous</span>
+            <div class="play-pause">Pause</div>
+            <span>Next</span>
+            <span style="margin-left: auto;">Add to Library</span>
+        </div>
+
+        <div class="timeline">
+            <span class="time">01:14</span>
+            <div class="bar">
+                <div class="bar-progress"></div>
+            </div>
+            <span class="time">03:45</span>
+        </div>
+    </div>
+</body>
+</html>

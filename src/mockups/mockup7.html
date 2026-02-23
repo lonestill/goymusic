@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoyMusic - Immersive Player</title>
+    <link rel="stylesheet" href="./base.css">
+    <style>
+        :root {
+            --accent: #f5c2e7;
+            --glass-blur: 60px;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .dynamic-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(245, 194, 231, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(137, 180, 250, 0.15) 0%, transparent 50%);
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .immersive-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .album-art-large {
+            width: 500px;
+            height: 500px;
+            border-radius: 24px;
+            background: linear-gradient(45deg, #1e1e2e, #313244);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        .album-art-large img { width: 100%; height: 100%; object-fit: cover; }
+
+        .player-controls-immersive {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .track-metadata h1 { font-size: 56px; margin: 0; letter-spacing: -2px; }
+        .track-metadata h2 { font-size: 24px; font-weight: 300; opacity: 0.5; margin: 10px 0 0; }
+
+        .progress-immersive {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            position: relative;
+        }
+        .progress-fill { width: 45%; height: 100%; background: #fff; border-radius: 3px; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+
+        .time-labels { display: flex; justify-content: space-between; margin-top: 12px; font-size: 14px; opacity: 0.4; }
+
+        .control-btns {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+        }
+
+        .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; cursor: pointer; transition: 0.2s; }
+        .icon-lg:hover { transform: scale(1.1); opacity: 0.8; }
+        
+        .play-btn-lg {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+        }
+
+        /* Nav floating bar */
+        .nav-floating {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 8px 24px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+</head>
+<body>
+    <div class="dynamic-bg"></div>
+
+    <div class="nav-floating">
+        <div style="cursor: pointer; opacity: 0.5;">Home</div>
+        <div style="cursor: pointer; font-weight: bold;">Now Playing</div>
+        <div style="cursor: pointer; opacity: 0.5;">Library</div>
+    </div>
+
+    <div class="immersive-container">
+        <div class="album-art-large">
+            <!-- Simulated Album Art -->
+            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5c2e7 0%, #cba6f7 100%); opacity: 0.8;"></div>
+        </div>
+
+        <div class="player-controls-immersive">
+            <div class="track-metadata">
+                <h1>After Hours</h1>
+                <h2>The Weeknd</h2>
+            </div>
+
+            <div>
+                <div class="progress-immersive">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="time-labels">
+                    <span>2:42</span>
+                    <span>6:02</span>
+                </div>
+            </div>
+
+            <div class="control-btns">
+                <svg class="icon-lg icon"><path d="m19 20-10-8 10-8z"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                <div class="play-btn-lg">
+                    <svg class="icon-lg icon" style="stroke: #000; fill: #000;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                </div>
+                <svg class="icon-lg icon"><path d="m5 4 10 8-10 8z"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                <svg class="icon-lg icon" style="margin-left: 20px; opacity: 0.3;"><path d="m12 19 9 2 2-9-9-2-2 9Z"/><path d="M2 11V4a2 2 0 0 1 2-2h16"/><path d="M5 2v5"/><path d="M10 2v4"/></svg>
+            </div>
+
+            <div style="display: flex; gap: 24px; margin-top: 20px;">
+                <svg class="icon" style="opacity: 0.5;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <svg class="icon" style="opacity: 0.5;"><path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M12 13H3"/><path d="M12 6H3"/><path d="M8 20H3"/><path d="m15 11 3 3-3 3"/></svg>
+                <svg class="icon" style="opacity: 0.5;"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
