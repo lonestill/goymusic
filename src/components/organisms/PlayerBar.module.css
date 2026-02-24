@@ -5,64 +5,79 @@
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
     align-items: center;
-    padding: 0 32px;
+    padding: 0 24px;
     border-top: 1px solid var(--border-color);
     z-index: 100;
+    min-height: 80px;
 }
 
 .nowPlaying {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    min-width: 0;
 }
 
 .albumArt {
-    width: 56px;
-    height: 56px;
-    background: var(--accent);
-    border-radius: 8px;
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.albumArtEmpty {
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    flex-shrink: 0;
 }
 
 .trackInfo {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    gap: 2px;
 }
 
 .title {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .artist {
-    font-size: 12px;
+    font-size: 11px;
     opacity: 0.5;
     color: var(--text-main);
-}
-
-.heart {
-    margin-left: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .controls {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .buttons {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
 }
 
 .progress {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
 }
 
 .time {
@@ -70,6 +85,9 @@
     opacity: 0.4;
     font-variant-numeric: tabular-nums;
     color: var(--text-main);
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
 }
 
 .progressBar {
@@ -79,17 +97,17 @@
 .extra {
     display: flex;
     justify-content: flex-end;
-    gap: 16px;
-    opacity: 0.6;
+    align-items: center;
+    gap: 12px;
 }
 
 .volume {
     display: flex;
     align-items: center;
-    gap: 12px;
-    width: 120px;
+    gap: 6px;
+    width: 140px;
 }
 
 .volumeBar {
-    width: 100px;
+    flex: 1;
 }

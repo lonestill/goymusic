@@ -51,16 +51,23 @@
 
 .trackList {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .tableHeader {
-    opacity: 0.3;
+    opacity: 0.5;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
 }
 
 .tableHeader th {
-    padding: 12px;
+    padding: 8px 12px 14px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+:global([data-theme="light"]) .tableHeader th {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }

@@ -1,17 +1,11 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Shuffle,
-  SkipBack,
-  Pause,
-  SkipForward,
-  Repeat,
-  ListMusic,
-  Mic2,
-  Volume2,
-  Heart
+  Shuffle, SkipBack, Pause, Play, SkipForward, Repeat, Repeat1,
+  ListMusic, Volume2, Volume1, VolumeX
 } from 'lucide-react';
 import { IconButton } from '../atoms/IconButton';
 import { ProgressBar } from '../atoms/ProgressBar';
-import { Icon } from '../atoms/Icon';
+import { player } from '../../api/player';
 import styles from './PlayerBar.module.css';
 
 interface PlayerBarProps {
@@ -20,44 +14,87 @@ interface PlayerBarProps {
   className?: string;
 }
 
-/**
- * Organism: PlayerBar
- * The bottom player controls including now playing info and progress.
- */
+function formatTime(sec: number): string {
+  if (!sec || isNaN(sec) || !isFinite(sec)) return '0:00';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 export const PlayerBar: React.FC<PlayerBarProps> = ({
   queueVisible = true,
   onToggleQueue,
   className
 }) => {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    return player.subscribe(() => setTick(t => t + 1));
+  }, []);
+
+  const track = player.currentTrack;
+  const progress = player.duration > 0 ? (player.currentTime / player.duration) * 100 : 0;
+
+  const handleSeek = useCallback((pct: number) => {
+    if (!player.duration) return;
+    player.seek((pct / 100) * player.duration);
+  }, []);
+
+  const handleVolumeChange = useCallback((pct: number) => {
+    player.setVolume(Math.round(pct));
+  }, []);
+
+  const VolumeIcon = player.volume === 0 ? VolumeX : player.volume < 50 ? Volume1 : Volume2;
+  const RepeatIcon = player.repeat === 'one' ? Repeat1 : Repeat;
+
   return (
     <div className={`${styles.container} ${className || ''}`}>
-      {/* Now Playing Info */}
+      {/* Now Playing */}
       <div className={styles.nowPlaying}>
-        <div className={styles.albumArt} />
+        {track?.thumbUrl ? (
+          <img src={track.thumbUrl} alt="" className={styles.albumArt} />
+        ) : (
+          <div className={styles.albumArtEmpty} />
+        )}
         <div className={styles.trackInfo}>
-          <div className={styles.title}>Starboy</div>
-          <div className={styles.artist}>The Weeknd</div>
+          <div className={styles.title}>{track?.title || 'No track selected'}</div>
+          <div className={styles.artist}>{track?.artist || ''}</div>
         </div>
-        <IconButton icon={Heart} size={32} iconSize={16} className={styles.heart} />
       </div>
 
-      {/* Playback Controls */}
+      {/* Controls */}
       <div className={styles.controls}>
         <div className={styles.buttons}>
-          <IconButton icon={Shuffle} size={32} iconSize={16} />
-          <IconButton icon={SkipBack} size={32} iconSize={20} />
-          <IconButton icon={Pause} size={44} iconSize={20} variant="solid" />    
-          <IconButton icon={SkipForward} size={32} iconSize={20} />
-          <IconButton icon={Repeat} size={32} iconSize={16} />
+          <IconButton
+            icon={Shuffle} size={32} iconSize={16}
+            active={player.shuffle}
+            onClick={() => player.toggleShuffle()}
+          />
+          <IconButton icon={SkipBack} size={32} iconSize={20} onClick={() => player.prev()} />
+          <IconButton
+            icon={player.isPlaying ? Pause : Play}
+            size={44} iconSize={20} variant="solid"
+            onClick={() => player.togglePlay()}
+          />
+          <IconButton icon={SkipForward} size={32} iconSize={20} onClick={() => player.next()} />
+          <IconButton
+            icon={RepeatIcon} size={32} iconSize={16}
+            active={player.repeat !== 'off'}
+            onClick={() => player.toggleRepeat()}
+          />
         </div>
         <div className={styles.progress}>
-          <span className={styles.time}>1:42</span>
-          <ProgressBar progress={35} className={styles.progressBar} />
-          <span className={styles.time}>3:50</span>
+          <span className={styles.time}>{formatTime(player.currentTime)}</span>
+          <ProgressBar
+            progress={progress}
+            onSeek={handleSeek}
+            className={styles.progressBar}
+          />
+          <span className={styles.time}>{formatTime(player.duration)}</span>
         </div>
       </div>
 
-      {/* Extra Controls */}
+      {/* Volume + Queue */}
       <div className={styles.extra}>
         <IconButton
           icon={ListMusic}
@@ -66,13 +103,21 @@ export const PlayerBar: React.FC<PlayerBarProps> = ({
           active={queueVisible}
           onClick={onToggleQueue}
         />
-        <IconButton icon={Mic2} size={32} iconSize={18} />
         <div className={styles.volume}>
-          <Icon icon={Volume2} size={18} />
-          <ProgressBar progress={70} className={styles.volumeBar} />
+          <IconButton
+            icon={VolumeIcon}
+            size={28}
+            iconSize={16}
+            onClick={() => player.setVolume(player.volume === 0 ? 80 : 0)}
+          />
+          <ProgressBar
+            progress={player.volume}
+            onSeek={handleVolumeChange}
+            showThumb={true}
+            className={styles.volumeBar}
+          />
         </div>
       </div>
     </div>
   );
 };
-
