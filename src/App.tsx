@@ -25,6 +25,7 @@ function App() {
   const [playlists, setPlaylists] = useState<YTMPlaylist[]>([]);
   const [activeView, setActiveView] = useState<ActiveView>({ type: 'liked' });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(() => isLoggedIn());
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -49,12 +50,13 @@ function App() {
 
           console.log('YTM webview ready, loading data...');
           setIsAuthenticated(true);
-          loadPlaylists();
+          await loadPlaylists();
         } catch (e) {
           console.error('Failed to restore session:', e);
           clearTokens();
         }
       }
+      setIsInitializing(false);
     };
     init();
   }, []);
@@ -103,6 +105,7 @@ function App() {
           activeView={activeView}
           onSelectView={setActiveView}
           isAuthenticated={isAuthenticated}
+          isInitializing={isInitializing}
           onLogout={handleLogout}
         />
       }
@@ -110,6 +113,7 @@ function App() {
         <MainView
           activeView={activeView}
           isAuthenticated={isAuthenticated}
+          isInitializing={isInitializing}
           onAuthenticated={onAuthenticated}
           onSearch={(q: string) => setActiveView({ type: 'search', searchQuery: q })}
         />

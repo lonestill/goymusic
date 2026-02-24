@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { TrackRow } from '../molecules/TrackRow';
+import { TrackRowSkeleton } from '../molecules/TrackRowSkeleton';
+import { Skeleton } from '../atoms/Skeleton';
 import { getLikedSongs, getPlaylistTracks, searchMusic, YTMTrack } from '../../api/yt';
 import { player } from '../../api/player';
 import { ActiveView } from '../../App';
@@ -10,6 +12,7 @@ import styles from './MainView.module.css';
 interface MainViewProps {
   activeView: ActiveView;
   isAuthenticated: boolean;
+  isInitializing?: boolean;
   onAuthenticated: () => void;
   onSearch: (query: string) => void;
 }
@@ -18,7 +21,7 @@ interface MainViewProps {
  * Organism: MainView
  * The central content area displaying playlist/album details and track lists.
  */
-export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated, onAuthenticated, onSearch }) => {
+export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated, isInitializing, onAuthenticated, onSearch }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tracks, setTracks] = useState<YTMTrack[]>([]);
 
@@ -111,8 +114,8 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
     }
   };
 
-  // Not authenticated — show login
-  if (!isAuthenticated) {
+  // Not authenticated — show login, unless we are currently initializing
+  if (!isAuthenticated && !isInitializing) {
     return (
       <div className={styles.container} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
         <h2 style={{ marginBottom: '0.5rem' }}>Welcome to GoyMusic</h2>
@@ -210,22 +213,22 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
           </form>
         </header>
 
-        {isLoading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-            <Loader2 className="animate-spin" size={32} />
-          </div>
-        ) : (
-          <table className={styles.trackList}>
-            <thead>
-              <tr className={styles.tableHeader}>
-                <th style={{ textAlign: 'left', width: '40px' }}>#</th>
-                <th style={{ textAlign: 'left' }}>Title</th>
-                <th style={{ textAlign: 'left' }}>Album</th>
-                <th style={{ textAlign: 'right' }}>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tracks.map((track, i) => (
+        <table className={styles.trackList}>
+          <thead>
+            <tr className={styles.tableHeader}>
+              <th style={{ textAlign: 'left', width: '40px' }}>#</th>
+              <th style={{ textAlign: 'left' }}>Title</th>
+              <th style={{ textAlign: 'left' }}>Album</th>
+              <th style={{ textAlign: 'right' }}>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <TrackRowSkeleton key={i} index={i} />
+              ))
+            ) : (
+              tracks.map((track, i) => (
                 <TrackRow
                   key={track.id}
                   index={i + 1}
@@ -237,10 +240,10 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
                   isActive={activeTrackId === track.id}
                   onClick={() => player.playTrackList(tracks, i)}
                 />
-              ))}
-            </tbody>
-          </table>
-        )}
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     );
   }
@@ -248,43 +251,59 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
   // Liked songs or Playlist view
   const viewTitle = activeView.type === 'liked' ? 'Liked Songs' : (activeView.playlistTitle || 'Playlist');
   const viewLabel = activeView.type === 'liked' ? 'AUTO PLAYLIST' : 'PLAYLIST';
+  const showSkeletons = isLoading || isInitializing;
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div
-          className={styles.cover}
-          style={{
-            backgroundImage: tracks[0]?.thumbUrl ? `url(${tracks[0].thumbUrl})` : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        />
-        <div className={styles.info}>
-          <div className={styles.label}>{viewLabel}</div>
-          <h1 className={styles.title}>{viewTitle}</h1>
-          <div className={styles.meta}>
-            {tracks.length} songs
-          </div>
+        {showSkeletons ? (
+          <Skeleton width={192} height={192} borderRadius={12} className={styles.cover} style={{ flexShrink: 0 }} />
+        ) : (
+          <div
+            className={styles.cover}
+            style={{
+              backgroundImage: tracks[0]?.thumbUrl ? `url(${tracks[0].thumbUrl})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              flexShrink: 0
+            }}
+          />
+        )}
+        <div className={styles.info} style={{ flex: 1 }}>
+          {showSkeletons ? (
+            <>
+              <Skeleton width={120} height={14} borderRadius={4} className={styles.label} style={{ marginBottom: 8 }} />
+              <div className={styles.title} style={{ marginBottom: 16 }}>
+                <Skeleton width="80%" height={72} borderRadius={8} />
+              </div>
+              <Skeleton width={80} height={14} borderRadius={4} className={styles.meta} />
+            </>
+          ) : (
+            <>
+              <div className={styles.label}>{viewLabel}</div>
+              <h1 className={styles.title}>{viewTitle}</h1>
+              <div className={styles.meta}>{tracks.length} songs</div>
+            </>
+          )}
         </div>
       </header>
 
-      {isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-          <Loader2 className="animate-spin" size={32} />
-        </div>
-      ) : (
-        <table className={styles.trackList}>
-          <thead>
-            <tr className={styles.tableHeader}>
-              <th style={{ textAlign: 'left', width: '40px' }}>#</th>
-              <th style={{ textAlign: 'left' }}>Title</th>
-              <th style={{ textAlign: 'left' }}>Album</th>
-              <th style={{ textAlign: 'right' }}>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tracks.map((track, i) => (
+      <table className={styles.trackList}>
+        <thead>
+          <tr className={styles.tableHeader}>
+            <th style={{ textAlign: 'left', width: '40px' }}>#</th>
+            <th style={{ textAlign: 'left' }}>Title</th>
+            <th style={{ textAlign: 'left' }}>Album</th>
+            <th style={{ textAlign: 'right' }}>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {showSkeletons ? (
+            Array.from({ length: 12 }).map((_, i) => (
+              <TrackRowSkeleton key={i} index={i} />
+            ))
+          ) : (
+            tracks.map((track, i) => (
               <TrackRow
                 key={track.id}
                 index={i + 1}
@@ -296,10 +315,10 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
                 isActive={activeTrackId === track.id}
                 onClick={() => player.playTrackList(tracks, i)}
               />
-            ))}
-          </tbody>
-        </table>
-      )}
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

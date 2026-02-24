@@ -16,6 +16,7 @@ class PlayerStore {
 
     private listeners: Set<PlayerCallback> = new Set();
     private pollInterval: ReturnType<typeof setInterval> | null = null;
+    private lastToggleTime: number = 0;
 
     subscribe(cb: PlayerCallback): () => void {
         this.listeners.add(cb);
@@ -24,6 +25,34 @@ class PlayerStore {
 
     private notify() {
         this.listeners.forEach(cb => cb());
+        this.updateRpc();
+    }
+
+    private lastRpcUpdate = 0;
+    private async updateRpc() {
+        const now = Date.now();
+        if (now - this.lastRpcUpdate < 1000) return; // limit to 1 RPC request per second
+        this.lastRpcUpdate = now;
+
+        const title = this.currentTrack?.title || '';
+        const artist = this.currentTrack?.artist || '';
+        const videoId = this.currentTrack?.id || '';
+        const thumbUrl = this.currentTrack?.thumbUrl || '';
+
+        try {
+            // Send state to Rust backend to update Discord Rich Presence via IPC
+            await invoke('ytm_update_discord_rpc', {
+                title,
+                artist,
+                videoId,
+                thumbUrl,
+                isPlaying: this.isPlaying,
+                currentTime: this.currentTime,
+                duration: this.duration
+            });
+        } catch (e) {
+            console.error('Failed to update Discord RPC', e);
+        }
     }
 
     /** Load a list of tracks and start playing from index */
@@ -64,6 +93,7 @@ class PlayerStore {
 
     async togglePlay() {
         if (!this.currentTrack) return;
+        this.lastToggleTime = Date.now();
         try {
             await invoke('ytm_toggle_play');
             this.isPlaying = !this.isPlaying;
@@ -132,18 +162,23 @@ class PlayerStore {
 
     private startPolling() {
         if (this.pollInterval) clearInterval(this.pollInterval);
+
         this.pollInterval = setInterval(async () => {
-            if (!this.isPlaying) return;
             try {
                 const state: any = await invoke('ytm_get_playback_state');
                 if (state) {
                     this.currentTime = state.current_time || this.currentTime;
                     this.duration = state.duration || this.duration;
-                    const wasPlaying = this.isPlaying;
-                    this.isPlaying = state.is_playing ?? this.isPlaying;
 
-                    // Auto-advance when track ends
-                    if (wasPlaying && !this.isPlaying && this.currentTime >= this.duration - 1) {
+                    const wasPlaying = this.isPlaying;
+
+                    // Don't override our local state with stale YTM state right after a toggle
+                    if (Date.now() - this.lastToggleTime > 1000) {
+                        this.isPlaying = state.is_playing ?? this.isPlaying;
+                    }
+
+                    // Auto-advance when track ends (only if we were genuinely playing and hit the end)
+                    if (wasPlaying && !this.isPlaying && this.duration > 0 && this.currentTime >= this.duration - 1) {
                         this.next();
                     }
                     this.notify();

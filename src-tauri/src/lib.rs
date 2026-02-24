@@ -1,7 +1,10 @@
-use serde_json::Value;
+use serde_json::{Value, json};
 use std::sync::Mutex;
 use tauri::State;
 use std::sync::Arc;
+use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
+
+struct DiscordState(Mutex<Option<DiscordIpcClient>>);
 
 /// Percent-encode a string for safe embedding in JS
 fn urlencoding(s: &str) -> String {
@@ -315,7 +318,8 @@ async fn ytm_toggle_play(app: tauri::AppHandle) -> Result<bool, String> {
     let win = app.get_webview_window("ytm-login")
         .ok_or("Login window not found")?;
     
-    win.eval("document.querySelector('video')?.paused ? document.querySelector('video')?.play() : document.querySelector('video')?.pause();")
+    // It's much more reliable to click YTM's own play/pause button so their state machine updates
+    win.eval("document.querySelector('#play-pause-button')?.click();")
         .map_err(|e| e.to_string())?;
     Ok(true)
 }
@@ -339,7 +343,13 @@ async fn ytm_set_volume(app: tauri::AppHandle, volume: f64) -> Result<bool, Stri
     let win = app.get_webview_window("ytm-login")
         .ok_or("Login window not found")?;
     
-    win.eval(&format!("if(document.querySelector('video')) document.querySelector('video').volume = {};", volume / 100.0))
+    // Update both the video element and the player bar UI if possible
+    win.eval(&format!(r#"
+        const v = document.querySelector('video');
+        if (v) v.volume = {};
+        const api = document.getElementById('movie_player');
+        if (api && api.setVolume) api.setVolume({});
+    "#, volume / 100.0, volume))
         .map_err(|e| e.to_string())?;
     Ok(true)
 }
@@ -396,6 +406,61 @@ async fn ytm_get_playback_state(
     Ok(json!(null))
 }
 
+#[tauri::command]
+fn ytm_update_discord_rpc(
+    state: State<'_, DiscordState>,
+    title: String,
+    artist: String,
+    video_id: String,
+    thumb_url: String,
+    is_playing: bool,
+    current_time: f64,
+    duration: f64,
+) -> Result<(), String> {
+    let mut client_opt = state.0.lock().unwrap();
+    if client_opt.is_none() {
+        if let Ok(mut client) = DiscordIpcClient::new("1194717480627740753") {
+            if client.connect().is_ok() {
+                *client_opt = Some(client);
+            }
+        }
+    }
+
+    if let Some(client) = client_opt.as_mut() {
+        let large_img = if thumb_url.is_empty() { "icon".to_string() } else { thumb_url };
+
+        let mut act = activity::Activity::new()
+            .state(artist.as_str())
+            .assets(activity::Assets::new().large_image(large_img.as_str()).large_text("GoyMusic"));
+        
+        let listen_url = if video_id.is_empty() {
+            "https://music.youtube.com".to_string()
+        } else {
+            format!("https://music.youtube.com/watch?v={}", video_id)
+        };
+        
+        act = act.buttons(vec![
+            activity::Button::new("Listen", &listen_url),
+            activity::Button::new("Download", "https://github.com/lonestill/goymusic"),
+        ]);
+
+        let pause_details = if title.is_empty() { "Browsing...".to_string() } else { format!("Paused: {}", title) };
+
+        if is_playing && duration > 0.0 {
+            act = act.details(title.as_str());
+            let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
+            let start = now - (current_time as i64);
+            let end = start + (duration as i64);
+            act = act.timestamps(activity::Timestamps::new().start(start).end(end));
+        } else {
+            act = act.details(&pause_details);
+        }
+
+        let _ = client.set_activity(act);
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let (port, response, ready) = start_bridge_server();
@@ -407,6 +472,7 @@ pub fn run() {
             bridge_response: response,
             bridge_ready: ready,
         })
+        .manage(DiscordState(Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             get_bridge_port,
             open_ytm_login,
@@ -417,6 +483,7 @@ pub fn run() {
             ytm_seek,
             ytm_set_volume,
             ytm_get_playback_state,
+            ytm_update_discord_rpc,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

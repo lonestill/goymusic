@@ -38,6 +38,30 @@ export interface YTMPlaylist {
     count: string;
 }
 
+// ===== Thread Lock for Bridge Server =====
+
+let isBridging = false;
+const bridgeQueue: (() => void)[] = [];
+
+async function acquireBridgeLock(): Promise<void> {
+    if (!isBridging) {
+        isBridging = true;
+        return;
+    }
+    return new Promise(resolve => {
+        bridgeQueue.push(resolve);
+    });
+}
+
+function releaseBridgeLock() {
+    if (bridgeQueue.length > 0) {
+        const next = bridgeQueue.shift();
+        next?.();
+    } else {
+        isBridging = false;
+    }
+}
+
 // ===== DOM Scraping (playlists) =====
 
 const SCRAPER_PLAYLISTS = `
@@ -73,6 +97,7 @@ const SCRAPER_PLAYLISTS = `
 `;
 
 export async function getLibraryPlaylists(): Promise<YTMPlaylist[]> {
+    await acquireBridgeLock();
     try {
         console.log('>>> getLibraryPlaylists via DOM scrape');
         const res: any = await invoke('ytm_scrape', {
@@ -84,6 +109,8 @@ export async function getLibraryPlaylists(): Promise<YTMPlaylist[]> {
     } catch (e) {
         console.error('getLibraryPlaylists error', e);
         return [];
+    } finally {
+        releaseBridgeLock();
     }
 }
 
@@ -110,8 +137,13 @@ function getBestThumb(thumbs: any[]): string {
 }
 
 async function ytmFetch(endpoint: string, body: object): Promise<any> {
-    const bodyJson = JSON.stringify(body);
-    return await invoke('ytm_webview_request', { endpoint, bodyJson });
+    await acquireBridgeLock();
+    try {
+        const bodyJson = JSON.stringify(body);
+        return await invoke('ytm_webview_request', { endpoint, bodyJson });
+    } finally {
+        releaseBridgeLock();
+    }
 }
 
 export async function getLikedSongs(): Promise<YTMTrack[]> {
@@ -144,21 +176,63 @@ export async function getPlaylistTracks(playlistId: string): Promise<YTMTrack[]>
 
         // Handle continuation (pagination)
         let continuation = shelf?.continuations?.[0]?.nextContinuationData?.continuation;
+        if (!continuation && shelf?.contents) {
+            const lastItem = shelf.contents[shelf.contents.length - 1];
+            if (lastItem?.continuationItemRenderer) {
+                continuation = lastItem.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
+                    || lastItem.continuationItemRenderer?.nextContinuationData?.continuation;
+            }
+        }
         let page = 1;
 
         while (continuation) {
-            console.log(`Loading page ${++page}... (${tracks.length} tracks so far)`);
+            console.log(`Loading page ${++page}... (${tracks.length} tracks so far), token: ${continuation.substring(0, 10)}...`);
             const contRes = await ytmFetch('browse', {
                 context: YTM_CONTEXT,
                 continuation
             });
 
-            const contContents = contRes?.continuationContents?.musicPlaylistShelfContinuation?.contents || [];
-            parseTracks(contContents, tracks);
+            let contContents: any[] = [];
+            let nextContinuation: string | undefined = undefined;
 
-            // Next continuation
-            continuation = contRes?.continuationContents?.musicPlaylistShelfContinuation
-                ?.continuations?.[0]?.nextContinuationData?.continuation;
+            if (contRes?.continuationContents) {
+                const cc = contRes.continuationContents;
+                const shelfCont = cc.musicPlaylistShelfContinuation || cc.musicShelfContinuation || cc.sectionListContinuation;
+                if (shelfCont) {
+                    contContents = shelfCont.contents || [];
+                    nextContinuation = shelfCont.continuations?.[0]?.nextContinuationData?.continuation;
+                }
+            } else if (contRes?.onResponseReceivedActions) {
+                for (const action of contRes.onResponseReceivedActions) {
+                    if (action.appendContinuationItemsAction?.continuationItems) {
+                        const items = action.appendContinuationItemsAction.continuationItems;
+                        // The continuation token is usually an item of type continuationItemRenderer
+                        const contRenderer = items.find((i: any) => i.continuationItemRenderer);
+                        if (contRenderer) {
+                            nextContinuation = contRenderer.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
+                                || contRenderer.continuationItemRenderer?.nextContinuationData?.continuation;
+                        }
+                        contContents = items.filter((i: any) => !i.continuationItemRenderer);
+                    }
+                }
+            } else if (contRes?.onResponseReceivedEndpoints) {
+                // some edge cases load it here
+                const endpoint = contRes.onResponseReceivedEndpoints[0];
+                const items = endpoint?.appendContinuationItemsAction?.continuationItems || [];
+                const contRenderer = items.find((i: any) => i.continuationItemRenderer);
+                if (contRenderer) {
+                    nextContinuation = contRenderer.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
+                        || contRenderer.continuationItemRenderer?.nextContinuationData?.continuation;
+                }
+                contContents = items.filter((i: any) => !i.continuationItemRenderer);
+            }
+
+            if (contContents.length > 0) {
+                parseTracks(contContents, tracks);
+            }
+
+            if (!nextContinuation || nextContinuation === continuation) break;
+            continuation = nextContinuation;
         }
 
         console.log(`Loaded ${tracks.length} tracks total`);

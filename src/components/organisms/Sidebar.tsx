@@ -4,6 +4,7 @@ import { NavLink } from '../molecules/NavLink';
 import { IconButton } from '../atoms/IconButton';
 import { YTMPlaylist } from '../../api/yt';
 import { ActiveView } from '../../App';
+import { Skeleton } from '../atoms/Skeleton';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -13,6 +14,7 @@ interface SidebarProps {
   activeView?: ActiveView;
   onSelectView?: (view: ActiveView) => void;
   isAuthenticated?: boolean;
+  isInitializing?: boolean;
   onLogout?: () => void;
   className?: string;
 }
@@ -29,6 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeView,
   onSelectView,
   isAuthenticated,
+  isInitializing,
   onLogout,
   className
 }) => {
@@ -60,7 +63,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       </nav>
 
-      {!collapsed && playlists.length > 0 && (
+      {!collapsed && (isInitializing ? (
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Your Playlists</h3>
+          <nav className={styles.nav}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} style={{ padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center' }}>
+                <Skeleton width="100%" height={20} borderRadius={6} />
+              </div>
+            ))}
+          </nav>
+        </div>
+      ) : playlists.length > 0 ? (
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Your Playlists</h3>
           <nav className={styles.nav}>
@@ -74,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             ))}
           </nav>
         </div>
-      )}
+      ) : null)}
 
       {isAuthenticated && (
         <div style={{ marginTop: 'auto', padding: '0.75rem' }}>
