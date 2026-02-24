@@ -5,6 +5,7 @@ interface SliderBarProps {
   progress: number; // 0 to 100
   onSeek?: (pct: number) => void;
   showThumb?: boolean;
+  nyanMode?: boolean;
   accentColor?: string;
   className?: string;
 }
@@ -17,6 +18,7 @@ export const ProgressBar: React.FC<SliderBarProps> = ({
   progress,
   onSeek,
   showThumb = true,
+  nyanMode = false,
   className
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -75,11 +77,11 @@ export const ProgressBar: React.FC<SliderBarProps> = ({
         <div className={styles.hoverFill} style={{ width: `${hoverPct}%` }} />
       )}
       {/* Actual progress */}
-      <div className={styles.fill} style={{ width: `${clampedProgress}%` }} />
+      <div className={`${styles.fill} ${nyanMode ? styles.nyanFill : ''}`} style={{ width: `${clampedProgress}%` }} />
       {/* Thumb */}
       {showThumb && interactive && (
         <div
-          className={styles.thumb}
+          className={`${styles.thumb} ${nyanMode ? styles.nyanThumb : ''}`}
           style={{ left: `${clampedProgress}%` }}
         />
       )}

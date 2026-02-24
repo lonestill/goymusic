@@ -389,7 +389,8 @@ async fn ytm_get_playback_state(
                     body: JSON.stringify({{
                         current_time: v.currentTime,
                         duration: v.duration || 0,
-                        is_playing: !v.paused
+                        is_playing: !v.paused,
+                        volume: v.volume
                     }})
                 }});
             }}
@@ -495,6 +496,20 @@ fn ytm_update_media_controls(
     Ok(())
 }
 
+#[tauri::command]
+async fn fetch_lyrics(track_name: String, artist_name: String) -> Result<Value, String> {
+    let client = reqwest::Client::new();
+    let resp = client
+        .get("https://lrclib.net/api/search")
+        .query(&[("track_name", &track_name), ("artist_name", &artist_name)])
+        .header("User-Agent", "GoyMusic/1.0")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let body = resp.text().await.map_err(|e| e.to_string())?;
+    serde_json::from_str(&body).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let (port, response, ready) = start_bridge_server();
@@ -582,6 +597,7 @@ pub fn run() {
             ytm_get_playback_state,
             ytm_update_discord_rpc,
             ytm_update_media_controls,
+            fetch_lyrics,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

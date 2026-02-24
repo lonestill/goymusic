@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { player } from '../../api/player';
 import styles from './LyricsView.module.css';
 import { Loader2, Music4 } from 'lucide-react';
@@ -33,27 +34,45 @@ export const LyricsView: React.FC = () => {
         });
     }, [trackId]);
 
+    // Keep a ref to track the latest fetch to avoid race conditions
+    const fetchIdRef = useRef<number>(0);
+
     const fetchLyrics = async (title: string, artist: string) => {
+        const currentFetchId = ++fetchIdRef.current;
+
         setLoading(true);
         setError('');
         setLyrics(null);
+
         try {
-            // LRCLib provides open lyrics
-            const res = await fetch(`https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`);
-            const data = await res.json();
-            if (data && data.length > 0) {
+            // Use Rust backend to bypass CORS
+            const data: any = await invoke('fetch_lyrics', {
+                trackName: title,
+                artistName: artist
+            });
+
+            // If another fetch was started after this one, ignore these results
+            if (fetchIdRef.current !== currentFetchId) return;
+
+            if (data && Array.isArray(data) && data.length > 0) {
+                setError('');
                 setLyrics({
-                    syncedLyrics: data[0].syncedLyrics,
-                    plainLyrics: data[0].plainLyrics,
-                    instrumental: data[0].instrumental
+                    syncedLyrics: data[0].syncedLyrics || '',
+                    plainLyrics: data[0].plainLyrics || '',
+                    instrumental: data[0].instrumental || false
                 });
             } else {
+                setLyrics(null);
                 setError('No lyrics found for this track.');
             }
         } catch (e) {
+            if (fetchIdRef.current !== currentFetchId) return;
+            setLyrics(null);
             setError('Failed to fetch lyrics. Try again later.');
         } finally {
-            setLoading(false);
+            if (fetchIdRef.current === currentFetchId) {
+                setLoading(false);
+            }
         }
     };
 

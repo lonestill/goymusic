@@ -25,3 +25,4 @@ serde_json = "1"
 tokio = { version = "1", features = ["time"] }
 discord-rich-presence = "0.2.3"
 souvlaki = "0.7.3"
+reqwest = { version = "0.12", features = ["json"] }

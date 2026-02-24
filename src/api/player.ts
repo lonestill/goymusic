@@ -131,6 +131,8 @@ class PlayerStore {
         // Navigate the hidden webview to play this track
         try {
             await invoke('ytm_play_track', { videoId: track.id });
+            // Re-apply the volume because loading a new YT page sometimes resets it
+            await invoke('ytm_set_volume', { volume: this.volume });
             this.startPolling();
         } catch (e) {
             console.error('Failed to play track:', e);
@@ -217,6 +219,14 @@ class PlayerStore {
                     this.duration = state.duration || this.duration;
 
                     const wasPlaying = this.isPlaying;
+
+                    // Enforce our volume state if YouTube resets it during navigation
+                    if (typeof state.volume === 'number') {
+                        const ytVol = Math.round(state.volume * 100);
+                        if (Math.abs(ytVol - this.volume) > 1) {
+                            invoke('ytm_set_volume', { volume: this.volume }).catch(() => { });
+                        }
+                    }
 
                     // Don't override our local state with stale YTM state right after a toggle
                     if (Date.now() - this.lastToggleTime > 1000) {

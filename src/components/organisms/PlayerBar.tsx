@@ -89,6 +89,7 @@ export const PlayerBar: React.FC<PlayerBarProps> = ({
             progress={progress}
             onSeek={handleSeek}
             className={styles.progressBar}
+            nyanMode={true}
           />
           <span className={styles.time}>{formatTime(player.duration)}</span>
         </div>
