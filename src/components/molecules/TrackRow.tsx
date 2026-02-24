@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Play, AudioLines } from 'lucide-react';
+import { Play } from 'lucide-react';
+import { Visualizer } from '../atoms/Visualizer';
 import styles from './TrackRow.module.css';
 
 interface TrackRowProps {
@@ -10,6 +11,7 @@ interface TrackRowProps {
   duration: string;
   thumbUrl?: string;
   isActive?: boolean;
+  isPlaying?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -26,6 +28,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
   duration,
   thumbUrl,
   isActive = false,
+  isPlaying = false,
   onClick,
   className
 }) => {
@@ -44,7 +47,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
           {isHovered ? (
             <Play size={14} className={styles.playIcon} fill="currentColor" />
           ) : isActive ? (
-            <AudioLines size={16} className={styles.activeIcon} />
+            <Visualizer isPlaying={isPlaying} />
           ) : (
             <span className={styles.indexText}>{index}</span>
           )}

@@ -23,7 +23,7 @@ export const QueuePanel: React.FC = () => {
         {upcoming.map((track, i) => (
           <div
             key={`${track.id}-${i}`}
-            className={styles.item}
+            className={`${styles.item} ${player.queueIndex === player.queueIndex + 1 + i ? styles.active : ''}`}
             onClick={() => player.playTrackList(player.queue, player.queueIndex + 1 + i)}
             style={{ cursor: 'pointer' }}
           >

@@ -5,7 +5,7 @@
     min-height: var(--app-min-height);
     background: var(--bg-base);
     display: grid;
-    grid-template-areas: 
+    grid-template-areas:
         "title title title"
         "sidebar main right"
         "player player player";
@@ -16,6 +16,26 @@
     overflow: hidden;
     color: var(--text-main);
     transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ambientBlur {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(120px) saturate(1.5) brightness(0.6);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+    transition: background-image 1.5s ease-in-out;
+}
+
+:global([data-theme="light"]) .ambientBlur {
+    opacity: 0.15;
+    filter: blur(120px) saturate(1.5) brightness(1.2);
 }
 
 .sidebarCollapsed {

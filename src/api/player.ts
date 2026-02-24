@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { YTMTrack } from './yt';
 
 type PlayerCallback = () => void;
@@ -28,15 +29,34 @@ class PlayerStore {
         this.updateRpc();
     }
 
-    private lastRpcUpdate = 0;
+    private rpcLastVideoId = '';
+    private rpcLastIsPlaying = false;
+    private rpcLastTime = 0;
+    private rpcLastUpdateAt = 0;
+
     private async updateRpc() {
         const now = Date.now();
-        if (now - this.lastRpcUpdate < 1000) return; // limit to 1 RPC request per second
-        this.lastRpcUpdate = now;
+        if (now - this.rpcLastUpdateAt < 1000) return; // Max 1 update per 2 seconds
+
+        const videoId = this.currentTrack?.id || '';
+        const isPlaying = this.isPlaying;
+
+        const elapsed = (now - this.rpcLastUpdateAt) / 1000;
+        const expectedTime = this.rpcLastIsPlaying ? this.rpcLastTime + elapsed : this.rpcLastTime;
+
+        if (this.rpcLastVideoId === videoId && this.rpcLastIsPlaying === isPlaying) {
+            if (Math.abs(this.currentTime - expectedTime) < 3) {
+                return; // Discord RPC is interpolating time locally, no need to spam updates
+            }
+        }
+
+        this.rpcLastUpdateAt = now;
+        this.rpcLastVideoId = videoId;
+        this.rpcLastIsPlaying = isPlaying;
+        this.rpcLastTime = this.currentTime;
 
         const title = this.currentTrack?.title || '';
         const artist = this.currentTrack?.artist || '';
-        const videoId = this.currentTrack?.id || '';
         const thumbUrl = this.currentTrack?.thumbUrl || '';
 
         try {
@@ -50,6 +70,13 @@ class PlayerStore {
                 currentTime: this.currentTime,
                 duration: this.duration
             });
+            // Update Windows Media Controls (SMTC)
+            await invoke('ytm_update_media_controls', {
+                title,
+                artist,
+                thumbUrl,
+                isPlaying: this.isPlaying
+            });
         } catch (e) {
             console.error('Failed to update Discord RPC', e);
         }
@@ -57,9 +84,28 @@ class PlayerStore {
 
     /** Load a list of tracks and start playing from index */
     async playTrackList(tracks: YTMTrack[], startIndex: number = 0) {
-        this.queue = [...tracks];
+        // If the tracks are literally the same reference as the current queue, just seek index
+        if (tracks !== this.queue) {
+            this.queue = [...tracks];
+        }
         this.queueIndex = startIndex;
         await this.playCurrentTrack();
+    }
+
+    /** Add a track to the end of the queue */
+    addToQueue(track: YTMTrack) {
+        this.queue.push(track);
+        this.notify();
+    }
+
+    /** Insert a track to play immediately after the current one */
+    playNext(track: YTMTrack) {
+        if (this.queue.length === 0) {
+            this.playTrackList([track], 0);
+        } else {
+            this.queue.splice(this.queueIndex + 1, 0, track);
+            this.notify();
+        }
     }
 
     /** Play a single track */
@@ -186,7 +232,7 @@ class PlayerStore {
             } catch (_) {
                 // Webview might not be ready yet
             }
-        }, 1000);
+        }, 500); // Poll every 500ms for tighter lyric synchronization
     }
 
     private parseDuration(dur: string): number {
@@ -199,3 +245,8 @@ class PlayerStore {
 }
 
 export const player = new PlayerStore();
+
+// Attach global event listeners from Rust (Media keys)
+listen('media-play-pause', () => player.togglePlay());
+listen('media-next', () => player.next());
+listen('media-prev', () => player.prev());

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Shuffle, SkipBack, Pause, Play, SkipForward, Repeat, Repeat1,
-  ListMusic, Volume2, Volume1, VolumeX
+  ListMusic, Mic2, Volume2, Volume1, VolumeX
 } from 'lucide-react';
 import { IconButton } from '../atoms/IconButton';
 import { ProgressBar } from '../atoms/ProgressBar';
@@ -9,8 +9,8 @@ import { player } from '../../api/player';
 import styles from './PlayerBar.module.css';
 
 interface PlayerBarProps {
-  queueVisible?: boolean;
-  onToggleQueue?: () => void;
+  activeRightPanel?: 'none' | 'queue' | 'lyrics';
+  onToggleRightPanel?: (panel: 'queue' | 'lyrics') => void;
   className?: string;
 }
 
@@ -22,8 +22,8 @@ function formatTime(sec: number): string {
 }
 
 export const PlayerBar: React.FC<PlayerBarProps> = ({
-  queueVisible = true,
-  onToggleQueue,
+  activeRightPanel = 'none',
+  onToggleRightPanel,
   className
 }) => {
   const [, setTick] = useState(0);
@@ -95,15 +95,22 @@ export const PlayerBar: React.FC<PlayerBarProps> = ({
       </div>
 
       {/* Volume + Queue */}
-      <div className={styles.extra}>
+      <div className={styles.extra} style={{ gap: '0.2rem' }}>
+        <IconButton
+          icon={Mic2}
+          size={32}
+          iconSize={18}
+          active={activeRightPanel === 'lyrics'}
+          onClick={() => onToggleRightPanel?.('lyrics')}
+        />
         <IconButton
           icon={ListMusic}
           size={32}
           iconSize={18}
-          active={queueVisible}
-          onClick={onToggleQueue}
+          active={activeRightPanel === 'queue'}
+          onClick={() => onToggleRightPanel?.('queue')}
         />
-        <div className={styles.volume}>
+        <div className={styles.volume} style={{ marginLeft: '1rem' }}>
           <IconButton
             icon={VolumeIcon}
             size={28}

@@ -6,10 +6,12 @@ import { PlayerBar } from './components/organisms/PlayerBar';
 import { QueuePanel } from './components/organisms/QueuePanel';
 import { MainView } from './components/organisms/MainView';
 import { TitleBar } from './components/organisms/TitleBar';
+import { SettingsView } from './components/organisms/SettingsView';
+import { LyricsView } from './components/organisms/LyricsView';
 import { isLoggedIn, clearTokens, getLibraryPlaylists, YTMPlaylist } from './api/yt';
 import './styles/theme.css';
 
-export type ViewType = 'liked' | 'playlist' | 'search';
+export type ViewType = 'liked' | 'playlist' | 'search' | 'settings';
 
 export interface ActiveView {
   type: ViewType;
@@ -21,11 +23,23 @@ export interface ActiveView {
 function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isQueueVisible, setIsQueueVisible] = useState(true);
+  const [rightPanelContent, setRightPanelContent] = useState<'queue' | 'lyrics' | 'none'>('queue');
   const [playlists, setPlaylists] = useState<YTMPlaylist[]>([]);
-  const [activeView, setActiveView] = useState<ActiveView>({ type: 'liked' });
+  const [activeView, setActiveView] = useState<ActiveView>(() => {
+    const saved = localStorage.getItem('goymusic-active-view');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) { }
+    }
+    return { type: 'liked' };
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isInitializing, setIsInitializing] = useState(() => isLoggedIn());
+
+  useEffect(() => {
+    localStorage.setItem('goymusic-active-view', JSON.stringify(activeView));
+  }, [activeView]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -90,8 +104,8 @@ function App() {
     setIsSidebarCollapsed(prev => !prev);
   };
 
-  const toggleQueue = () => {
-    setIsQueueVisible(prev => !prev);
+  const toggleRightPanel = (panel: 'queue' | 'lyrics') => {
+    setRightPanelContent(prev => prev === panel ? 'none' : panel);
   };
 
   return (
@@ -110,23 +124,27 @@ function App() {
         />
       }
       main={
-        <MainView
-          activeView={activeView}
-          isAuthenticated={isAuthenticated}
-          isInitializing={isInitializing}
-          onAuthenticated={onAuthenticated}
-          onSearch={(q: string) => setActiveView({ type: 'search', searchQuery: q })}
-        />
+        activeView.type === 'settings' ? (
+          <SettingsView onLogout={handleLogout} />
+        ) : (
+          <MainView
+            activeView={activeView}
+            isAuthenticated={isAuthenticated}
+            isInitializing={isInitializing}
+            onAuthenticated={onAuthenticated}
+            onSearch={(q: string) => setActiveView({ type: 'search', searchQuery: q })}
+          />
+        )
       }
-      rightPanel={isQueueVisible ? <QueuePanel /> : undefined}
+      rightPanel={rightPanelContent === 'queue' ? <QueuePanel /> : rightPanelContent === 'lyrics' ? <LyricsView /> : undefined}
       playerBar={
         <PlayerBar
-          queueVisible={isQueueVisible}
-          onToggleQueue={toggleQueue}
+          activeRightPanel={rightPanelContent}
+          onToggleRightPanel={toggleRightPanel}
         />
       }
       isSidebarCollapsed={isSidebarCollapsed}
-      isQueueVisible={isQueueVisible}
+      isQueueVisible={rightPanelContent !== 'none'}
     />
   );
 }

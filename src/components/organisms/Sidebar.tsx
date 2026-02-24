@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Heart, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { Search, Heart, ChevronLeft, ChevronRight, Settings, LogOut } from 'lucide-react';
 import { NavLink } from '../molecules/NavLink';
 import { IconButton } from '../atoms/IconButton';
 import { YTMPlaylist } from '../../api/yt';
@@ -60,6 +60,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label={collapsed ? '' : 'Search'}
           active={activeView?.type === 'search'}
           onClick={() => onSelectView?.({ type: 'search', searchQuery: '' })}
+        />
+        <NavLink
+          icon={Settings}
+          label={collapsed ? '' : 'Settings'}
+          active={activeView?.type === 'settings'}
+          onClick={() => onSelectView?.({ type: 'settings' })}
         />
       </nav>
 

@@ -29,16 +29,15 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
   const [loginError, setLoginError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Keep track of active track ID to update highlights when auto-playing
+  // Keep track of active track ID and playing state
   const [activeTrackId, setActiveTrackId] = useState<string | undefined>(player.currentTrack?.id);
+  const [isPlaying, setIsPlaying] = useState<boolean>(player.isPlaying);
 
   useEffect(() => {
     return player.subscribe(() => {
-      // Only trigger re-render if the ID actually changed
-      setActiveTrackId(prev => {
-        if (prev !== player.currentTrack?.id) return player.currentTrack?.id;
-        return prev;
-      });
+      // Trigger re-render if ID or playing state changed
+      setActiveTrackId(player.currentTrack?.id);
+      setIsPlaying(player.isPlaying);
     });
   }, []);
 
@@ -238,6 +237,7 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
                   duration={track.duration}
                   thumbUrl={track.thumbUrl}
                   isActive={activeTrackId === track.id}
+                  isPlaying={isPlaying}
                   onClick={() => player.playTrackList(tracks, i)}
                 />
               ))
@@ -313,6 +313,7 @@ export const MainView: React.FC<MainViewProps> = ({ activeView, isAuthenticated,
                 duration={track.duration}
                 thumbUrl={track.thumbUrl}
                 isActive={activeTrackId === track.id}
+                isPlaying={isPlaying}
                 onClick={() => player.playTrackList(tracks, i)}
               />
             ))

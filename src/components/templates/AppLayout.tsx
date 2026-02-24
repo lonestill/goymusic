@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { player } from '../../api/player';
 import styles from './AppLayout.module.css';
 
 interface AppLayoutProps {
@@ -25,10 +26,26 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   isSidebarCollapsed = false,
   isQueueVisible = true
 }) => {
+  const [thumb, setThumb] = useState(player.currentTrack?.thumbUrl || '');
+
+  useEffect(() => {
+    return player.subscribe(() => {
+      setThumb(player.currentTrack?.thumbUrl || '');
+    });
+  }, []);
+
   return (
-    <div 
+    <div
       className={`${styles.appWindow} ${isSidebarCollapsed ? styles.sidebarCollapsed : ''} ${!isQueueVisible ? styles.queueHidden : ''}`}
     >
+      {/* Ambient background layer */}
+      {thumb && (
+        <div
+          className={styles.ambientBlur}
+          style={{ backgroundImage: `url(${thumb})` }}
+        />
+      )}
+
       {titleBar}
       {sidebar}
       <main className={styles.main}>

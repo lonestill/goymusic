@@ -1,10 +1,12 @@
 use serde_json::{Value, json};
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{State, Emitter};
 use std::sync::Arc;
 use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
+use souvlaki::{MediaControlEvent, MediaControls, PlatformConfig};
 
 struct DiscordState(Mutex<Option<DiscordIpcClient>>);
+struct MediaState(Mutex<Option<MediaControls>>);
 
 /// Percent-encode a string for safe embedding in JS
 fn urlencoding(s: &str) -> String {
@@ -344,13 +346,18 @@ async fn ytm_set_volume(app: tauri::AppHandle, volume: f64) -> Result<bool, Stri
         .ok_or("Login window not found")?;
     
     // Update both the video element and the player bar UI if possible
-    win.eval(&format!(r#"
-        const v = document.querySelector('video');
-        if (v) v.volume = {};
-        const api = document.getElementById('movie_player');
-        if (api && api.setVolume) api.setVolume({});
-    "#, volume / 100.0, volume))
-        .map_err(|e| e.to_string())?;
+    let js = format!("
+        (function() {{
+            const v = document.querySelector('video');
+            if (v) v.volume = {vol};
+            const api = document.getElementById('movie_player');
+            if (api && typeof api.setVolume === 'function') api.setVolume({vol_100});
+            const pb = document.querySelector('ytmusic-player-bar');
+            if (pb && pb.playerApi_ && typeof pb.playerApi_.setVolume === 'function') pb.playerApi_.setVolume({vol_100});
+        }})();
+    ", vol = volume / 100.0, vol_100 = volume);
+
+    win.eval(&js).map_err(|e| e.to_string())?;
     Ok(true)
 }
 
@@ -461,11 +468,101 @@ fn ytm_update_discord_rpc(
     Ok(())
 }
 
+#[tauri::command]
+fn ytm_update_media_controls(
+    state: State<'_, MediaState>,
+    title: String,
+    artist: String,
+    thumb_url: String,
+    is_playing: bool,
+) -> Result<(), String> {
+    if let Some(controls) = state.0.lock().unwrap().as_mut() {
+        use souvlaki::{MediaMetadata, MediaPlayback, MediaPosition};
+        
+        controls.set_metadata(MediaMetadata {
+            title: Some(&title),
+            artist: Some(&artist),
+            cover_url: if thumb_url.is_empty() { None } else { Some(&thumb_url) },
+            ..Default::default()
+        }).ok();
+
+        controls.set_playback(if is_playing {
+            MediaPlayback::Playing { progress: None }
+        } else {
+            MediaPlayback::Paused { progress: None }
+        }).ok();
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let (port, response, ready) = start_bridge_server();
     
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(all(desktop, not(test)))]
+            {
+                use tauri::Manager;
+                let _tray = tauri::tray::TrayIconBuilder::new()
+                    .icon(app.default_window_icon().unwrap().clone())
+                    .tooltip("GoyMusic")
+                    .on_tray_icon_event(|tray, event| {
+                        if let tauri::tray::TrayIconEvent::Click {
+                            button: tauri::tray::MouseButton::Left,
+                            button_state: tauri::tray::MouseButtonState::Up,
+                            ..
+                        } = event {
+                            let app = tray.app_handle();
+                            if let Some(window) = app.get_webview_window("main") {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                    })
+                    .build(app)?;
+
+                // Initialize SMTC (Windows Media Controls)
+                let hwnd = app.get_webview_window("main").map(|w| w.hwnd().unwrap().0 as *mut std::ffi::c_void);
+                let config = PlatformConfig {
+                    dbus_name: "goymusic",
+                    display_name: "GoyMusic",
+                    hwnd,
+                };
+
+                let mut controls = MediaControls::new(config).unwrap();
+                
+                let app_handle = app.handle().clone();
+                controls.attach(move |event: MediaControlEvent| {
+                    match event {
+                        MediaControlEvent::Play | MediaControlEvent::Pause | MediaControlEvent::Toggle => {
+                            let _ = app_handle.emit("media-play-pause", ());
+                        }
+                        MediaControlEvent::Next => {
+                            let _ = app_handle.emit("media-next", ());
+                        }
+                        MediaControlEvent::Previous => {
+                            let _ = app_handle.emit("media-prev", ());
+                        }
+                        _ => {}
+                    }
+                }).unwrap();
+                
+                app.manage(MediaState(Mutex::new(Some(controls))));
+
+                // Intercept close event to hide the window instead of killing it
+                if let Some(window) = app.get_webview_window("main") {
+                    let win_clone = window.clone();
+                    window.on_window_event(move |event| {
+                        if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                            api.prevent_close();
+                            let _ = win_clone.hide();
+                        }
+                    });
+                }
+            }
+            Ok(())
+        })
         .plugin(tauri_plugin_opener::init())
         .manage(AppState {
             bridge_port: port,
@@ -484,6 +581,7 @@ pub fn run() {
             ytm_set_volume,
             ytm_get_playback_state,
             ytm_update_discord_rpc,
+            ytm_update_media_controls,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
