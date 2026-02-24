@@ -24,7 +24,8 @@
     padding-left: 16px;
     opacity: 0.5;
     color: var(--text-main);
-    pointer-events: none;
+    user-select: none;
+    cursor: pointer;
 }
 
 .controls {

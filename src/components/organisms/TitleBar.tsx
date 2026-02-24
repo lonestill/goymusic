@@ -53,7 +53,6 @@ export const TitleBar: React.FC<TitleBarProps> = ({ theme, onToggleTheme }) => {
         <div
           className={styles.title}
           onClick={handleTitleClick}
-          style={{ pointerEvents: 'auto', cursor: 'grab' }}
         >
           GoyMusic
         </div>

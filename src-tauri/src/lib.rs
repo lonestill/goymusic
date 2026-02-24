@@ -293,6 +293,18 @@ async fn open_ytm_login(app: tauri::AppHandle, login_mode: Option<bool>) -> Resu
             set: function() {},
             get: function() { return null; }
         });
+        
+        // Fast adblocker script to skip ads
+        setInterval(() => {
+            const video = document.querySelector('video');
+            const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
+            const adOverlay = document.querySelector('.ytp-ad-player-overlay, [class^="ytp-ad-"]');
+
+            if (skipBtn) skipBtn.click();
+            if (adOverlay && video && video.duration) {
+                video.currentTime = video.duration;
+            }
+        }, 300);
     "#)
     .title("Login to YouTube Music")
     .inner_size(500.0, 700.0)
