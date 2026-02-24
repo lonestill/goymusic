@@ -294,7 +294,33 @@ async fn open_ytm_login(app: tauri::AppHandle, login_mode: Option<bool>) -> Resu
             get: function() { return null; }
         });
         
-        // Fast adblocker script to skip ads
+        // Full Adblocker: intercept network requests
+        const originalFetch = window.fetch;
+        window.fetch = async function(...args) {
+            const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url ? args[0].url : '');
+            if (url.includes('/pagead/') || url.includes('/ad_break') || url.includes('/api/stats/ads') || url.includes('doubleclick.net') || url.includes('adunit')) {
+                return new Response(new Blob([''], {type: 'text/plain'}), { status: 200, statusText: 'OK' });
+            }
+            return originalFetch.apply(this, args);
+        };
+        
+        // Block ads inside backend JSON responses 
+        const originalParse = JSON.parse;
+        JSON.parse = function(...args) {
+            let parsed = originalParse.apply(this, args);
+            if (parsed && typeof parsed === 'object') {
+                if (parsed.playerResponse) {
+                    delete parsed.playerResponse.adPlacements;
+                    delete parsed.playerResponse.playerAds;
+                    delete parsed.playerResponse.adBreakHeartbeatParams;
+                }
+                if (parsed.adPlacements) delete parsed.adPlacements;
+                if (parsed.playerAds) delete parsed.playerAds;
+            }
+            return parsed;
+        };
+        
+        // Fallback: Fast adblocker script to skip straggling ads
         setInterval(() => {
             const video = document.querySelector('video');
             const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
@@ -304,7 +330,7 @@ async fn open_ytm_login(app: tauri::AppHandle, login_mode: Option<bool>) -> Resu
             if (adOverlay && video && video.duration) {
                 video.currentTime = video.duration;
             }
-        }, 300);
+        }, 100);
     "#)
     .title("Login to YouTube Music")
     .inner_size(500.0, 700.0)
