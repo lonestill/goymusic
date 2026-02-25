@@ -1,0 +1,13 @@
+node_modules/
+dist/
+dist-electron/
+*.log
+.env
+.vscode/
+.idea/
+conductor/
+__pycache__/
+*.pyc
+venv/
+.venv/
+mockups/

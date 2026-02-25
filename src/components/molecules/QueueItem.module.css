@@ -1,0 +1,95 @@
+.item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.item:hover {
+    background: rgba(205, 214, 244, 0.05);
+    border-color: rgba(205, 214, 244, 0.1);
+}
+
+.item.active {
+    background: rgba(137, 180, 250, 0.1);
+    border-color: rgba(137, 180, 250, 0.2);
+}
+
+.coverWrapper {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(17, 17, 27, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.item:hover .cover {
+    transform: scale(1.05);
+}
+
+.playingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 17, 27, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main, #cdd6f4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+.artist {
+    font-size: 0.75rem;
+    color: var(--text-sub, #a6adc8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.active .title {
+    color: #89b4fa;
+}
+
+/* Russian XML Comments for CSS are not standard, so I'll keep it clean. */

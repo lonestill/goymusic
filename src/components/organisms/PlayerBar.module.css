@@ -1,0 +1,121 @@
+.container {
+    grid-area: player;
+    background: var(--glass-surface-player);
+    backdrop-filter: blur(var(--glass-blur));
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    padding: 0 24px;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+    height: var(--player-height);
+    overflow: hidden;
+}
+
+.nowPlaying {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.albumArt {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.albumArtEmpty {
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.trackInfo {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.artist {
+    font-size: 11px;
+    opacity: 0.5;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.2s;
+}
+
+.link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.time {
+    font-size: 11px;
+    opacity: 0.4;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main);
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
+}
+
+.progressBar {
+    flex: 1;
+}
+
+.extra {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+.volume {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 140px;
+}
+
+.volumeBar {
+    flex: 1;
+}

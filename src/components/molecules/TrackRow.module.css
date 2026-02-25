@@ -1,0 +1,181 @@
+.row {
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.row:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.row.active {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+:global([data-theme="light"]) .row:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .row.active {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.row td {
+    padding: 8px 12px;
+    border-bottom: 1px solid transparent;
+    font-size: 13px;
+    vertical-align: middle;
+    min-width: 0; /* Important for truncation in tables */
+}
+
+.row td:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.row td:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.indexCell {
+    width: 40px; /* Reduced from 48px to keep it tight */
+    min-width: 40px;
+    text-align: center;
+    padding: 0 !important;
+}
+
+.indexWrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.indexText {
+    opacity: 0.5;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.row.active .indexText {
+    color: var(--accent);
+    opacity: 1;
+}
+
+.playIcon,
+.activeIcon {
+    color: var(--text-main);
+    opacity: 0.8;
+}
+
+.row.active .playIcon,
+.row.active .activeIcon {
+    color: var(--accent);
+    opacity: 1;
+}
+
+.titleTd {
+    width: auto;
+    min-width: 0;
+}
+
+.titleCell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.thumbPlaceholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    background: var(--bg-layer-2);
+}
+
+:global([data-theme="light"]) .thumb {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.titleWrapper {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+    flex: 1;
+}
+
+.title {
+    font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-main);
+}
+
+.row.active .title {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.artist {
+    font-size: 12px;
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.2s;
+}
+
+.link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.album {
+    opacity: 0.6;
+    width: 30%;
+    max-width: 250px;
+    min-width: 0;
+}
+
+.albumText {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row:hover .album {
+    opacity: 0.8;
+}
+
+.duration {
+    text-align: right;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+    padding-right: 24px !important;
+    width: 80px;
+    min-width: 80px;
+}
+
+.row:hover .duration {
+    opacity: 0.9;
+}

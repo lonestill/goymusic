@@ -1,0 +1,306 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-main);
+    background: transparent;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* When queue is hidden, remove right side padding to use full space */
+.container.fullWidth .header {
+    padding-right: 0;
+}
+
+.container.fullWidth .section {
+    padding-right: 0;
+}
+
+.virtuosoWrapper {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 2rem 2rem 1rem 2rem;
+    height: 280px; /* Enforced fixed height to prevent jumping */
+    min-height: 280px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.backBtn {
+    background: var(--bg-layer-2);
+    border: none;
+    color: var(--text-main);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.backBtn:hover {
+    background: var(--hover-bg);
+    transform: scale(1.1);
+}
+
+.searchWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 1rem;
+    z-index: 1000;
+}
+
+.searchForm {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.suggestionsDropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-mantle);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+}
+
+.suggestionItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.suggestionItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.suggestionIcon {
+    opacity: 0.5;
+}
+
+.cover {
+    width: 192px;
+    height: 192px;
+    background: linear-gradient(135deg, #89b4fa, #cba6f7);
+    border-radius: 12px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    background-size: cover;
+    background-position: center;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.5;
+    margin-bottom: 8px;
+}
+
+.title {
+    font-size: 72px;
+    margin: 0;
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+.meta {
+    margin-top: 16px;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.trackList {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; /* CRITICAL: Prevent jumping */
+}
+
+.tableHeader {
+    z-index: 10;
+}
+
+.tableHeader th {
+    padding: 8px 12px 14px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    opacity: 1;
+}
+
+/* Strict widths to prevent jumping */
+.tableHeader th:nth-child(1) { width: 48px; min-width: 48px; text-align: center; }
+.tableHeader th:nth-child(2) { width: 45%; min-width: 200px; }
+.tableHeader th:nth-child(3) { width: 35%; min-width: 150px; }
+.tableHeader th:nth-child(4) { 
+    width: 100px; 
+    min-width: 100px;
+    text-align: right;
+    padding-right: 24px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 2rem;
+    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.scrollWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.horizontalScroll {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-top: 8px; /* Prevent hover clip */
+    padding-bottom: 1rem;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollNavBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.scrollWrapper:hover .scrollNavBtn {
+    opacity: 1;
+}
+
+.scrollNavBtn:hover {
+    background: var(--accent);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.scrollNavBtn.left {
+    left: -20px;
+}
+
+.scrollNavBtn.right {
+    right: -20px;
+}
+
+.artistsGrid {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-top: 8px; /* Added to prevent hover clip */
+    padding-bottom: 1rem;
+    scrollbar-width: none;
+}
+
+.artistsGrid::-webkit-scrollbar {
+    display: none;
+}
+
+.searchInput {
+    flex: 1;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-mantle);
+    color: var(--text-main);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 4px rgba(137, 180, 250, 0.1);
+}
+
+.searchButton {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: #11111b;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.searchButton:hover {
+    transform: scale(1.02);
+}
+
+.loaderContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+:global([data-theme="light"]) .tableHeader th {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}

@@ -1,0 +1,328 @@
+.container {
+    padding: 2rem;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.header {
+    flex-shrink: 0;
+}
+
+.bannerWrapper {
+    height: 300px;
+    width: 100%;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    background-color: var(--bg-layer-2);
+}
+
+.bannerImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.bannerPlaceholder {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-layer-2);
+}
+
+.bannerOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(9, 9, 15, 0.9) 0%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 2.5rem;
+}
+
+.name {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.seeAllBtn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s;
+}
+
+.seeAllBtn:hover {
+    background: var(--hover-bg);
+    color: var(--text-main);
+    border-color: var(--text-secondary);
+}
+
+.bio {
+    opacity: 0.7;
+    line-height: 1.8;
+    max-width: 800px;
+    font-size: 1rem;
+}
+
+.scrollWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.horizontalScroll {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-top: 8px; /* Prevent hover clip */
+    padding-bottom: 1rem;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollNavBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.scrollWrapper:hover .scrollNavBtn {
+    opacity: 1;
+}
+
+.scrollNavBtn:hover {
+    background: var(--accent);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.scrollNavBtn.left {
+    left: -20px;
+}
+
+.scrollNavBtn.right {
+    right: -20px;
+}
+
+.albumCard {
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.albumThumbWrapper {
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--bg-layer-2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.albumThumbWrapper:hover {
+    transform: scale(1.02);
+}
+
+.albumThumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.albumThumbPlaceholder {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-layer-3);
+}
+
+.albumTitle {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-main);
+}
+
+.albumMeta {
+    display: flex;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.albumCategory {
+    font-weight: 500;
+}
+
+.albumYear {
+    opacity: 0.8;
+}
+
+.trackList {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.tableHeader {
+    background: #09090f;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tableHeader th {
+    padding: 8px 12px 14px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    opacity: 0.5;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Sync with MainView.module.css */
+.tableHeader th:nth-child(1) { width: 48px; min-width: 48px; text-align: center; }
+.tableHeader th:nth-child(2) { width: 45%; min-width: 200px; }
+.tableHeader th:nth-child(3) { width: 35%; min-width: 150px; }
+.tableHeader th:nth-child(4) { 
+    width: 100px; 
+    min-width: 100px;
+    text-align: right;
+    padding-right: 24px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2rem;
+}
+
+/* See All View Styles */
+.allSongsView {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.viewHeader {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.viewSwitcher {
+    display: flex;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem;
+    border-radius: 18px;
+    width: fit-content;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewTab {
+    padding: 0.7rem 2rem;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.viewTab:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.viewTab.active {
+    background: var(--bg-layer-3);
+    color: var(--accent);
+    border-color: rgba(137, 180, 250, 0.4);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.backBtn {
+    background: var(--bg-layer-2);
+    border: none;
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.backBtn:hover {
+    background: var(--hover-bg);
+}
+
+.viewTitle {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+}

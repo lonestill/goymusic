@@ -1,0 +1,51 @@
+.button {
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-main);
+    opacity: 0.6;
+}
+
+.button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.button.active {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.solid {
+    background: #fff;
+    color: #000;
+    opacity: 1;
+}
+
+.solid:hover {
+    background: #fff;
+    transform: scale(1.05);
+}
+
+.accent {
+    color: var(--accent);
+    opacity: 1;
+}
+
+:global([data-theme="light"]) .button:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .solid {
+    background: var(--bg-crust);
+    color: var(--bg-base);
+}
+
+:global([data-theme="light"]) .solid:hover {
+    background: var(--text-main);
+}
